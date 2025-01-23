@@ -50,8 +50,8 @@ namespace df2x::components
 
 	void network::load()
 	{
-		// Allows us to intercept the hostnames that Novalogics "ResolveHostname" function is provided
-		// Useful for changing the old NovaWorld hostname ("novaworld.net") to the new one ("nw2.novaworld.net")
+		// Allows us to intercept the hostnames that Novalogics "ResolveHostname" function is provided.
+		// Useful for changing the old NovaWorld hostname ("novaworld.net") to the new one ("nw2.novaworld.net").
 		utils::memory::jump(0x004614D0, resolve_hostname_hook);
 
 		// Disable VON (server)
@@ -63,6 +63,12 @@ namespace df2x::components
 		// Allow dynamic port usage (client)
 		utils::memory::set<uint8_t>(0x0040869A, 1);
 		utils::memory::set<uint8_t>(0x004086BF, 1);
+
+		// Allow the use of the alternate startup.htm (without this you cannot connect through NovaHQ)
+		utils::memory::set<uintptr_t>(0x0043E215, 0x0043DDB0);
+		utils::memory::set<uintptr_t>(0x0043E221, 0x0043DB50);
+		utils::memory::set<uint8_t>(0x0043E3B7, 1);
+		utils::memory::set<uint8_t>(0x0043E3C0, 0);
 	}
 
 	void network::unload()
