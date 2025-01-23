@@ -6,7 +6,9 @@
 #include <vector>
 #include <filesystem>
 #include <functional>
-#include <assert.h>
+#include <ws2tcpip.h>
+
+#pragma comment(lib, "Ws2_32")
 
 #ifdef _DEBUG
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
