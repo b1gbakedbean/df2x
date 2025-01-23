@@ -84,6 +84,9 @@ namespace df2x::components
 		utils::memory::set<uintptr_t>(0x0043E221, 0x0043DB50);
 		utils::memory::set<uint8_t>(0x0043E3B7, 1);
 		utils::memory::set<uint8_t>(0x0043E3C0, 0);
+
+		// Allow for more frequent updates of entity (organics) positions to the client (server)
+		utils::memory::nop(0x0045FFA3, 2);
 	}
 
 	void network::unload()
