@@ -3,7 +3,7 @@
 
 namespace df2x::components
 {
-	static int custom_resolve_hostname(char* hostName)
+	int network::custom_resolve_hostname(char* hostName)
 	{
 		addrinfo hints{};
 		addrinfo* addrs{};
@@ -34,7 +34,7 @@ namespace df2x::components
 		return addr->sin_addr.S_un.S_addr;
 	}
 
-	static __declspec(naked) void resolve_hostname_hook()
+	__declspec(naked) void network::resolve_hostname_hook()
 	{
 		__asm
 		{

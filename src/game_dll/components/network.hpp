@@ -8,5 +8,9 @@ namespace df2x::components
 	public:
 		virtual void load();
 		virtual void unload();
+
+	private:
+		static int custom_resolve_hostname(char* hostName);
+		static void resolve_hostname_hook();
 	};
 }
