@@ -2,9 +2,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
-#include <windowsx.h>
-#include <vector>
-#include <filesystem>
 #include <functional>
 #include <ws2tcpip.h>
 
