@@ -8,7 +8,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_library(DISCORD_RPC_LIB discord-rpc)
 
 target_link_libraries(game_dll PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only ${DISCORD_RPC_LIB})
-set_target_properties(game_dll PROPERTIES OUTPUT_NAME df2x)
+set_target_properties(game_dll PROPERTIES OUTPUT_NAME DDraw)
 
 if (COPY_PATH)
   add_custom_command(TARGET game_dll POST_BUILD
