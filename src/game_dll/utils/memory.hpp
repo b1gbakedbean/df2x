@@ -13,7 +13,7 @@ namespace utils::memory
 		auto size = sizeof(T);
 
 		VirtualProtect(target, size, PAGE_EXECUTE_READWRITE, &protect_value);
-		memset(target, value, size);
+		*reinterpret_cast<T*>(target) = value;
 		VirtualProtect(target, size, protect_value, &protect_value);
 		FlushInstructionCache(GetCurrentProcess(), target, size);
 	}
