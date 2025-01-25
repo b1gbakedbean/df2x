@@ -20,42 +20,6 @@ namespace df2x::components
 		ticks++;
 	}
 
-	/*static __declspec(naked) void dispatcher_logic_loop_hook()
-	{
-		__asm
-		{
-			pushad
-			push DispatcherCallbackType_Logic
-			call dispatcher_run_callbacks
-			add esp, 0x4
-			popad
-
-			mov eax, 0x00468BB0
-			call eax
-
-			push 0x00464CE5
-			retn
-		}
-	}
-
-	static __declspec(naked) void dispatcher_render_loop_hook()
-	{
-		__asm
-		{
-			pushad
-			push DispatcherCallbackType_Render
-			call dispatcher_run_callbacks
-			add esp, 0x4
-			popad
-
-			mov eax, 0x00450070
-			call eax
-
-			push 0x004662B9
-			retn
-		}
-	}*/
-
 	static void preloop_dispatch()
 	{
 		game::get_current_loop()->preLoop();
@@ -126,12 +90,6 @@ namespace df2x::components
 		utils::memory::jump(0x00468B1B, dispatcher_update_hook);
 		utils::memory::jump(0x00468B32, dispatcher_render_hook);
 		utils::memory::jump(0x00468B75, dispatcher_postloop_hook);
-
-		// Hook the logic loop
-		// utils::memory::jump(0x00464CE0, dispatcher_logic_loop_hook);
-
-		// Hook the render loop
-		// utils::memory::jump(0x004662B4, dispatcher_render_loop_hook);
 	}
 
 	void dispatcher::unload()
