@@ -8,7 +8,13 @@ namespace game
 		// Functions
 
 		// Variables
+		GameLoop** g_currentLoop = reinterpret_cast<GameLoop**>(0x006772F0);
 	}
 
 	// Everything below here is our custom functions that are mostly wrappers around the internal functions/variables
+
+	GameLoop* get_current_loop()
+	{
+		return *internal::g_currentLoop;
+	}
 }
