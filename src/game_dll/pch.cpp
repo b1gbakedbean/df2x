@@ -233,7 +233,7 @@ extern "C" __declspec(dllexport) HRESULT __stdcall D3DParseUnknownCommand(void* 
 	}
 
 	if (!ddrawModule)
-{
+	{
 		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
 	}
 

@@ -80,8 +80,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     if (fdwReason == DLL_PROCESS_ATTACH)
     {
-        utils::memory::jump(/*0x569E60*/0x004791C0, entry_point_start_hook);
-        utils::memory::jump(/*0x5C506F*/0x0048628D, entry_point_end_hook);
+        utils::memory::jump(0x004791C0, entry_point_start_hook);
+        utils::memory::jump(0x0048628D, entry_point_end_hook);
     }
 
     return TRUE;
