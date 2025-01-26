@@ -22,21 +22,19 @@ namespace df2x::components
 
 	static void preloop_dispatch()
 	{
+		dispatcher_run_callbacks(DispatcherCallbackType_PreLoop);
 		game::get_current_loop()->preLoop();
 	}
 
 	static BOOL update_dispatch()
 	{
+		dispatcher_run_callbacks(DispatcherCallbackType_Update);
 		return game::get_current_loop()->update();
-	}
-
-	static void render_dispatch()
-	{
-		game::get_current_loop()->render();
 	}
 
 	static void postloop_dispatch()
 	{
+		dispatcher_run_callbacks(DispatcherCallbackType_PostLoop);
 		game::get_current_loop()->postLoop();
 	}
 
@@ -62,13 +60,30 @@ namespace df2x::components
 		}
 	}
 
-	static __declspec(naked) void dispatcher_render_hook()
+	static __declspec(naked) void dispatcher_player_render_hook()
 	{
 		__asm
 		{
-			mov eax, render_dispatch
-			test eax, eax
-			push 0x00468B37
+			push DispatcherCallbackType_Render
+			call dispatcher_run_callbacks
+			add esp, 0x4
+			mov eax, 0x00465D10
+			call eax
+			push 0x0046641C
+			retn
+		}
+	}
+
+	static __declspec(naked) void dispatcher_server_render_hook()
+	{
+		__asm
+		{
+			push DispatcherCallbackType_Render
+			call dispatcher_run_callbacks
+			add esp, 0x4
+			mov eax, 0x00465D10
+			call eax
+			push 0x0045F1FB
 			retn
 		}
 	}
@@ -88,7 +103,8 @@ namespace df2x::components
 	{
 		utils::memory::jump(0x00468AD4, dispatcher_preloop_hook);
 		utils::memory::jump(0x00468B1B, dispatcher_update_hook);
-		utils::memory::jump(0x00468B32, dispatcher_render_hook);
+		utils::memory::jump(0x00466417, dispatcher_player_render_hook);
+		utils::memory::jump(0x0045F1F6, dispatcher_server_render_hook);
 		utils::memory::jump(0x00468B75, dispatcher_postloop_hook);
 	}
 

@@ -5,8 +5,10 @@ namespace df2x::components
 {
 	enum DispatcherCallbackType
 	{
-		DispatcherCallbackType_Logic,
-		DispatcherCallbackType_Render
+		DispatcherCallbackType_PreLoop,
+		DispatcherCallbackType_Update,
+		DispatcherCallbackType_Render,
+		DispatcherCallbackType_PostLoop
 	};
 
 	struct DispatcherCallback
