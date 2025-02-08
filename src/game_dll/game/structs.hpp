@@ -11,6 +11,24 @@ namespace game
 		DrawTextAlignmentType_Center = 0x2,
 	};
 
+	struct PffArchive
+	{
+		HFILE fileHandle;
+		char pad_0004[136];
+		uint32_t entryCount;
+		char pad_0090[8];
+		struct PffEntry* entries;
+		struct PffEntry* cachedEntry;
+		char pad_00A0[28];
+	};
+
+	struct PffEntry
+	{
+		char pad_0000[4];
+		uint32_t offset;
+		char pad_0008[24];
+	};
+
 	struct GameLoop
 	{
 		char name[32];

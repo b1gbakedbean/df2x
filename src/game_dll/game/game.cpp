@@ -8,6 +8,7 @@ namespace game
 		// Functions
 		draw_scaled_text_t draw_scaled_text = draw_scaled_text_t(0x004577A0);
 		scale_coordinates_t scale_coordinates = scale_coordinates_t(0x00456B90);
+		pff_load_t pff_load = pff_load_t(0x0047D720);
 
 		// Variables
 		GameLoop** g_currentLoop = reinterpret_cast<GameLoop**>(0x006772F0);

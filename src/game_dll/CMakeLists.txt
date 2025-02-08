@@ -1,4 +1,4 @@
-add_library(game_dll SHARED "pch.cpp" "dllmain.cpp" "components/misc.cpp" "component_loader.cpp" "game/game.cpp" "utils/memory.cpp" "components/discordrpc.cpp" "components/network.cpp" "components/dispatcher.cpp")
+add_library(game_dll SHARED "pch.cpp" "dllmain.cpp" "components/misc.cpp" "component_loader.cpp" "game/game.cpp" "utils/memory.cpp" "components/discordrpc.cpp" "components/network.cpp" "components/dispatcher.cpp" "components/archive.cpp")
 target_compile_features(game_dll PRIVATE cxx_std_17)
 target_include_directories(game_dll PRIVATE .)
 target_precompile_headers(game_dll PRIVATE "pch.hpp")

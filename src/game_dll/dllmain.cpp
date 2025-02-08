@@ -4,6 +4,7 @@
 
 #include "components/component.hpp"
 #include "components/dispatcher.hpp"
+#include "components/archive.hpp"
 #include "components/network.hpp"
 #include "components/discordrpc.hpp"
 #include "components/misc.hpp"
@@ -38,6 +39,7 @@ namespace df2x
         setup_logging();
         SPDLOG_INFO("Initializing...");
         component_loader::add_component<df2x::components::dispatcher>();
+        component_loader::add_component<df2x::components::archive>();
         component_loader::add_component<df2x::components::network>();
         component_loader::add_component<df2x::components::discordrpc>();
         component_loader::add_component<df2x::components::misc>();
