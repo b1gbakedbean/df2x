@@ -1,6 +1,6 @@
 .vs/
 .vscode/
-build/
+out/
 
 CMakeUserPresets.json
 CMakeLists.txt.user
