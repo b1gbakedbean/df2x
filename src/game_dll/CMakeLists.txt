@@ -3,8 +3,6 @@ target_compile_features(game_dll PRIVATE cxx_std_17)
 target_include_directories(game_dll PRIVATE .)
 target_precompile_headers(game_dll PRIVATE "pch.hpp")
 
-find_package(fmt CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
 find_library(DISCORD_RPC_LIB discord-rpc)
 
 target_link_libraries(game_dll PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only ${DISCORD_RPC_LIB})
