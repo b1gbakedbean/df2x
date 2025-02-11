@@ -1,6 +1,7 @@
+configure_file("${PROJECT_SOURCE_DIR}/src/version.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/version.hpp")
 add_library(game_dll SHARED "pch.cpp" "dllmain.cpp" "components/misc.cpp" "component_loader.cpp" "game/game.cpp" "utils/memory.cpp" "components/discordrpc.cpp" "components/network.cpp" "components/dispatcher.cpp" "components/archive.cpp")
 target_compile_features(game_dll PRIVATE cxx_std_17)
-target_include_directories(game_dll PRIVATE .)
+target_include_directories(game_dll PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 target_precompile_headers(game_dll PRIVATE "pch.hpp")
 
 find_library(DISCORD_RPC_LIB discord-rpc)
