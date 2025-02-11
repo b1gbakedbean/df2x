@@ -12,5 +12,8 @@
 #else
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
 #endif
+
+#define SPDLOG_FMT_EXTERNAL
+#include <fmt/core.h>
 #include <spdlog/spdlog.h>
 #include <discord_rpc.h>
