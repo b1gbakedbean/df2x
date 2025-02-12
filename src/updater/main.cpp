@@ -1,5 +1,6 @@
 #include "spdlog/sinks/rotating_file_sink.h"
 #include "spdlog/sinks/msvc_sink.h"
+#include "cpr/cpr.h"
 
 const std::string game_directory_files[3] = 
     {

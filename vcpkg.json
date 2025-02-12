@@ -1,7 +1,8 @@
 {
   "dependencies": [
+    "discord-rpc",
     "fmt",
     "spdlog",
-    "discord-rpc"
+    "cpr"
   ]
 }
