@@ -5,7 +5,6 @@ target_include_directories(game_dll PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_
 target_precompile_headers(game_dll PRIVATE "pch.hpp")
 
 find_library(DISCORD_RPC_LIB discord-rpc)
-find_file(DISCORD_RPC_RUNTIME "bin/discord-rpc.dll")
 
 target_link_libraries(game_dll PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only ${DISCORD_RPC_LIB})
 set_target_properties(game_dll PROPERTIES OUTPUT_NAME DDraw)
@@ -14,11 +13,10 @@ install(TARGETS game_dll
         LIBRARY EXCLUDE_FROM_ALL
         ARCHIVE EXCLUDE_FROM_ALL
         RUNTIME DESTINATION "bin")
-install(FILES ${DISCORD_RPC_RUNTIME} DESTINATION "bin")
 
 if (COPY_PATH)
   add_custom_command(TARGET game_dll POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:game_dll> ${DISCORD_RPC_RUNTIME} ${COPY_PATH}
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:game_dll> ${COPY_PATH}
     COMMAND_EXPAND_LISTS
   )
 endif()
