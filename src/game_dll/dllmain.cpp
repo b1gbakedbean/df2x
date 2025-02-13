@@ -10,6 +10,7 @@
 #include "components/misc.hpp"
 
 #include "component_loader.hpp"
+#include "version.hpp"
 
 namespace df2x
 {
@@ -38,6 +39,11 @@ namespace df2x
     {
         setup_logging();
         SPDLOG_INFO("Initializing...");
+#ifndef _DEBUG
+        SPDLOG_INFO("Version: {}", DF2X_FULL_VERSION);
+#else
+        SPDLOG_INFO("Version: {}-{}", DF2X_FULL_VERSION, DF2X_GIT_REVISION);
+#endif
         component_loader::add_component<df2x::components::dispatcher>();
         component_loader::add_component<df2x::components::archive>();
         component_loader::add_component<df2x::components::network>();
