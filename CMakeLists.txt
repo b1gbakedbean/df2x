@@ -1,7 +1,11 @@
 ﻿cmake_minimum_required (VERSION 3.24)
 
-project ("df2x" VERSION 0.1.0)
+project(
+    "df2x" 
+    VERSION 0.1.0
+    LANGUAGES C CXX RC)
 
+string(REPLACE "." "," PROJECT_RC_FILEVERSION "${CMAKE_PROJECT_VERSION}")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(GetGitRevision)
