@@ -56,7 +56,7 @@ std::string GetSystemDDrawDllPath()
 
 std::string GetAlternateDDrawDllPath()
 {
-	return "DDraw.dgVoodoo.dll";
+	return "DDraw.alt.dll";
 }
 
 extern "C" __declspec(dllexport) HRESULT __stdcall DirectDrawCreate(GUID* pGUID, void** ppDD, void* pUnkOuter)
