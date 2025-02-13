@@ -10,3 +10,8 @@ find_package(spdlog CONFIG REQUIRED)
 
 add_subdirectory(src/game_dll)
 add_subdirectory(src/updater)
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CMAKE_PROJECT_VERSION}")
+include(CPack)
