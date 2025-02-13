@@ -12,7 +12,7 @@ set_target_properties(game_dll PROPERTIES OUTPUT_NAME DDraw)
 install(TARGETS game_dll
         LIBRARY EXCLUDE_FROM_ALL
         ARCHIVE EXCLUDE_FROM_ALL
-        RUNTIME DESTINATION "bin")
+        RUNTIME DESTINATION ".")
 
 if (COPY_PATH)
   add_custom_command(TARGET game_dll POST_BUILD

@@ -7,7 +7,7 @@ target_include_directories(updater PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_C
 target_precompile_headers(updater PRIVATE "pch.hpp")
 target_link_libraries(updater PRIVATE fmt::fmt-header-only spdlog::spdlog_header_only cpr::cpr)
 
-install(TARGETS updater DESTINATION "bin")
+install(TARGETS updater DESTINATION ".")
 
 if (COPY_PATH)
   add_custom_command(TARGET updater POST_BUILD
