@@ -61,14 +61,16 @@ std::string GetAlternateDDrawDllPath()
 
 extern "C" __declspec(dllexport) HRESULT __stdcall DirectDrawCreate(GUID* pGUID, void** ppDD, void* pUnkOuter)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (systemDDrawDllPath.empty())
 	{
 		return 0;
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		auto selectedDllPath = std::filesystem::exists(alternateDDrawDllPath) ? alternateDDrawDllPath : systemDDrawDllPath;
+
+		ddrawModule = LoadLibrary(selectedDllPath.c_str());
 	}
 
 	if (ddrawModule)
