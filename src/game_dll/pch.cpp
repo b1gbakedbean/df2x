@@ -16,12 +16,52 @@ typedef int(__stdcall* DDInternalUnlock_t)(int unk1);
 typedef int(__stdcall* DDInternalLock_t)(int unk1, int unk2);
 typedef HRESULT(__stdcall* D3DParseUnknownCommand_t)(void* pvCommands, void** ppvReturnedCommand);
 
+std::string GetPreferredDDrawDllPath();
 std::string GetSystemDDrawDllPath();
 std::string GetAlternateDDrawDllPath();
 
-std::string systemDDrawDllPath = GetSystemDDrawDllPath();
-std::string alternateDDrawDllPath = GetAlternateDDrawDllPath();
+std::string preferredDDrawDllPath{};
 HMODULE ddrawModule;
+
+std::string GetPreferredDDrawDllPath()
+{
+	auto alternateDDrawDllPath = GetAlternateDDrawDllPath();
+
+	// Check for the existence of the alternate DDraw.dll if the path isn't empty, as it takes priority over the system DDraw.dll
+	if (!alternateDDrawDllPath.empty())
+	{
+		SPDLOG_INFO("Checking if \"{}\" exists in the current game directory...", alternateDDrawDllPath);
+
+		if (std::filesystem::exists(alternateDDrawDllPath))
+		{
+			SPDLOG_INFO("\"{}\" exists!", alternateDDrawDllPath);
+			return alternateDDrawDllPath;
+		}
+
+		SPDLOG_INFO("Alternate \"DDraw.dll\" doesn't exist", alternateDDrawDllPath);
+	}
+
+	auto systemDDrawDllPath = GetSystemDDrawDllPath();
+
+	// Alternate DDraw.dll path was empty or didn't exist, check for the system DDraw.dll now
+	if (!systemDDrawDllPath.empty())
+	{
+		SPDLOG_INFO("Checking if \"{}\" exists...", systemDDrawDllPath);
+
+		if (std::filesystem::exists(systemDDrawDllPath))
+		{
+			SPDLOG_INFO("\"{}\" exists!", systemDDrawDllPath);
+			return systemDDrawDllPath;
+		}
+	}
+
+	// Neither the alternate or system DDraw.dll exist, uhhh?!
+	SPDLOG_ERROR("No alternate or system \"DDraw.dll\" could be located and we cannot proceed, aborting!");
+	MessageBoxA(nullptr, "No alternate or system \"DDraw.dll\" could be located and we cannot proceed, aborting!", "Fatal Error", MB_OK | MB_ICONERROR);
+	exit(-1);
+
+	return std::string();
+}
 
 std::string GetSystemDDrawDllPath()
 {
@@ -61,192 +101,216 @@ std::string GetAlternateDDrawDllPath()
 
 extern "C" __declspec(dllexport) HRESULT __stdcall DirectDrawCreate(GUID* pGUID, void** ppDD, void* pUnkOuter)
 {
-	if (systemDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		auto selectedDllPath = std::filesystem::exists(alternateDDrawDllPath) ? alternateDDrawDllPath : systemDDrawDllPath;
-
-		ddrawModule = LoadLibrary(selectedDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<DirectDrawCreate_t>(GetProcAddress(ddrawModule, "DirectDrawCreate"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<DirectDrawCreate_t>(GetProcAddress(ddrawModule, "DirectDrawCreate"));
-
-		SPDLOG_DEBUG("Proxying DirectDrawCreate...");
-
-		return fProc(pGUID, ppDD, pUnkOuter);
+		SPDLOG_ERROR("GetProcAddress({}, \"DirectDrawCreate\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(pGUID, ppDD, pUnkOuter);
 }
 
 extern "C" __declspec(dllexport) HRESULT __stdcall DirectDrawEnumerateExA(void* pCallback, void* pContext, DWORD dwFlags)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<DirectDrawEnumerateExA_t>(GetProcAddress(ddrawModule, "DirectDrawEnumerateExA"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<DirectDrawEnumerateExA_t>(GetProcAddress(ddrawModule, "DirectDrawEnumerateExA"));
-
-		SPDLOG_DEBUG("Proxying DirectDrawEnumerateExA...");
-
-		return fProc(pCallback, pContext, dwFlags);
+		SPDLOG_ERROR("GetProcAddress({}, \"DirectDrawEnumerateExA\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(pCallback, pContext, dwFlags);
 }
 
 extern "C" __declspec(dllexport) HRESULT __stdcall DirectDrawEnumerateA(void* pCallback, void* pContext)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<DirectDrawEnumerateA_t>(GetProcAddress(ddrawModule, "DirectDrawEnumerateA"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<DirectDrawEnumerateA_t>(GetProcAddress(ddrawModule, "DirectDrawEnumerateA"));
-
-		SPDLOG_DEBUG("Proxying DirectDrawEnumerateA...");
-
-		return fProc(pCallback, pContext);
+		SPDLOG_ERROR("GetProcAddress({}, \"DirectDrawEnumerateA\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(pCallback, pContext);
 }
 
 extern "C" __declspec(dllexport) int __stdcall AcquireDDThreadLock()
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<AcquireDDThreadLock_t>(GetProcAddress(ddrawModule, "AcquireDDThreadLock"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<AcquireDDThreadLock_t>(GetProcAddress(ddrawModule, "AcquireDDThreadLock"));
-
-		SPDLOG_DEBUG("Proxying AcquireDDThreadLock...");
-
-		return fProc();
+		SPDLOG_ERROR("GetProcAddress({}, \"AcquireDDThreadLock\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc();
 }
 
 extern "C" __declspec(dllexport) void __stdcall ReleaseDDThreadLock()
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<ReleaseDDThreadLock_t>(GetProcAddress(ddrawModule, "ReleaseDDThreadLock"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<ReleaseDDThreadLock_t>(GetProcAddress(ddrawModule, "ReleaseDDThreadLock"));
-
-		SPDLOG_DEBUG("Proxying ReleaseDDThreadLock...");
-
-		fProc();
+		SPDLOG_ERROR("GetProcAddress({}, \"ReleaseDDThreadLock\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return;
 	}
+
+	fProc();
 }
 
 extern "C" __declspec(dllexport) int __stdcall DDInternalUnlock(int unk1)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<DDInternalUnlock_t>(GetProcAddress(ddrawModule, "DDInternalUnlock"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<DDInternalUnlock_t>(GetProcAddress(ddrawModule, "DDInternalUnlock"));
-
-		SPDLOG_DEBUG("Proxying DDInternalUnlock...");
-
-		return fProc(unk1);
+		SPDLOG_ERROR("GetProcAddress({}, \"DDInternalUnlock\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(unk1);
 }
 
 extern "C" __declspec(dllexport) int __stdcall DDInternalLock(int unk1, int unk2)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<DDInternalLock_t>(GetProcAddress(ddrawModule, "DDInternalLock"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<DDInternalLock_t>(GetProcAddress(ddrawModule, "DDInternalLock"));
-
-		SPDLOG_DEBUG("Proxying DDInternalLock...");
-
-		return fProc(unk1, unk2);
+		SPDLOG_ERROR("GetProcAddress({}, \"DDInternalLock\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(unk1, unk2);
 }
 
 extern "C" __declspec(dllexport) HRESULT __stdcall D3DParseUnknownCommand(void* pvCommands, void** ppvReturnedCommand)
 {
-	if (systemDDrawDllPath.empty() && alternateDDrawDllPath.empty())
+	if (preferredDDrawDllPath.empty())
 	{
-		return 0;
+		preferredDDrawDllPath = GetPreferredDDrawDllPath();
 	}
 
 	if (!ddrawModule)
 	{
-		ddrawModule = LoadLibrary(alternateDDrawDllPath.empty() ? systemDDrawDllPath.c_str() : alternateDDrawDllPath.c_str());
+		if (!(ddrawModule = LoadLibrary(preferredDDrawDllPath.c_str())))
+		{
+			SPDLOG_ERROR("LoadLibrary(\"{}\") failed -> {}", preferredDDrawDllPath, GetLastError());
+			return 0;
+		}
 	}
 
-	if (ddrawModule)
+	auto fProc = reinterpret_cast<D3DParseUnknownCommand_t>(GetProcAddress(ddrawModule, "D3DParseUnknownCommand"));
+
+	if (!fProc)
 	{
-		auto fProc = reinterpret_cast<D3DParseUnknownCommand_t>(GetProcAddress(ddrawModule, "D3DParseUnknownCommand"));
-
-		SPDLOG_DEBUG("Proxying D3DParseUnknownCommand...");
-
-		return fProc(pvCommands, ppvReturnedCommand);
+		SPDLOG_ERROR("GetProcAddress({}, \"D3DParseUnknownCommand\") failed -> {}", fmt::ptr(ddrawModule), GetLastError());
+		return 0;
 	}
 
-	return 0;
+	return fProc(pvCommands, ppvReturnedCommand);
 }
