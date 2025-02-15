@@ -2,7 +2,7 @@
 
 project(
     "df2x" 
-    VERSION 0.1.1
+    VERSION 0.1.2
     LANGUAGES C CXX RC)
 
 string(REPLACE "." "," PROJECT_RC_FILEVERSION "${CMAKE_PROJECT_VERSION}")
