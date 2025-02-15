@@ -2,7 +2,62 @@
 
 namespace utils::memory
 {
-	void jump(uintptr_t address, void* func)
+    uintptr_t iat(const std::string& libraryName, const std::string& functionName, void* func)
+    {
+		auto moduleHandle = reinterpret_cast<uint8_t*>(GetModuleHandle(nullptr));
+		auto dosHeader = reinterpret_cast<IMAGE_DOS_HEADER*>(moduleHandle);
+		auto ntHeaders = reinterpret_cast<IMAGE_NT_HEADERS*>(moduleHandle + dosHeader->e_lfanew);
+		auto importDirectory = &ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+		auto importDescriptor = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(moduleHandle + importDirectory->VirtualAddress);
+
+		while (importDescriptor->Name)
+		{
+			std::string importLibraryName = reinterpret_cast<char*>(moduleHandle + importDescriptor->Name);
+
+			if (importLibraryName == libraryName)
+			{
+				auto nameTableEntry = reinterpret_cast<uintptr_t*>(moduleHandle + importDescriptor->OriginalFirstThunk);
+				auto addressTableEntry = reinterpret_cast<uintptr_t*>(moduleHandle + importDescriptor->FirstThunk);
+
+				if (!importDescriptor->OriginalFirstThunk)
+				{
+					nameTableEntry = reinterpret_cast<uintptr_t*>(moduleHandle + importDescriptor->FirstThunk);
+				}
+
+				while (*nameTableEntry)
+				{
+					std::string importFunctionName;
+
+					if (IMAGE_SNAP_BY_ORDINAL(*nameTableEntry))
+					{
+						importFunctionName = "#" + std::to_string(IMAGE_ORDINAL(*nameTableEntry));
+					}
+					else
+					{
+						importFunctionName = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(moduleHandle + *nameTableEntry)->Name;
+					}
+
+					// TODO: If the name of the import function matches, hook it
+					if (importFunctionName == functionName)
+					{
+						auto originalAddressTableEntry = *addressTableEntry;
+
+						set<uintptr_t>(reinterpret_cast<uintptr_t>(addressTableEntry), reinterpret_cast<uintptr_t>(func));
+						return originalAddressTableEntry;
+					}
+
+					nameTableEntry++;
+					addressTableEntry++;
+				}
+			}
+
+			importDescriptor++;
+		}
+
+		return 0;
+    }
+
+    void jump(uintptr_t address, void* func)
 	{
 		auto target = reinterpret_cast<uint8_t*>(address);
 		auto jmpValue = reinterpret_cast<uint32_t>(func) - (address + 5);

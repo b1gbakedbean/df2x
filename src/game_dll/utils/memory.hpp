@@ -18,6 +18,7 @@ namespace utils::memory
 		FlushInstructionCache(GetCurrentProcess(), target, size);
 	}
 
+	uintptr_t iat(const std::string& library, const std::string& function, void* func);
 	void jump(uintptr_t address, void* func);
 	void set_string(uintptr_t address, const char* str);
 	void nop(uintptr_t address, size_t length);
