@@ -79,12 +79,6 @@ namespace df2x::components
 		utils::memory::set<uint8_t>(0x004089DB, 4);
 		utils::memory::set<uint8_t>(0x00408B3E, 4);
 
-		// Allow the use of the alternate startup.htm (without this you cannot connect through NovaHQ)
-		utils::memory::set<uintptr_t>(0x0043E215, 0x0043DDB0);
-		utils::memory::set<uintptr_t>(0x0043E221, 0x0043DB50);
-		utils::memory::set<uint8_t>(0x0043E3B7, 1);
-		utils::memory::set<uint8_t>(0x0043E3C0, 0);
-
 		// Allow for more frequent updates of entity (organics) positions to the client (server)
 		utils::memory::nop(0x0045FFA3, 2);
 	}

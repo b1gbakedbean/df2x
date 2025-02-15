@@ -17,9 +17,26 @@ namespace df2x::components
 #else
 		utils::memory::set_string(0x00A6E4C0, fmt::format("{}-{}", DF2X_FULL_VERSION, DF2X_GIT_REVISION).c_str());
 #endif
+
+		// Allow the use of the alternate startup.htm (without this you cannot connect through NovaHQ)
+		o_ibrowse_SetCallback = reinterpret_cast<ibrowse_SetCallback_t>(utils::memory::iat("iBrowse.dll", "ibrowse_SetCallback", ibrowse_SetCallback_hook));
 	}
 
 	void misc::unload()
 	{
 	}
+
+    void misc::ibrowse_SetCallback_hook(int callbackId, uintptr_t callback)
+    {
+		if (callbackId == 0 && callback == 0x43DB50)
+		{
+			callbackId = 1;
+		}
+		else if (callbackId == 1 && callback == 0x43DDB0)
+		{
+			callbackId = 0;
+		}
+
+		o_ibrowse_SetCallback(callbackId, callback);
+    }
 }
