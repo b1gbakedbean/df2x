@@ -36,8 +36,7 @@ namespace utils::memory
 					{
 						importFunctionName = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(moduleHandle + *nameTableEntry)->Name;
 					}
-
-					// TODO: If the name of the import function matches, hook it
+					
 					if (importFunctionName == functionName)
 					{
 						auto originalAddressTableEntry = *addressTableEntry;
