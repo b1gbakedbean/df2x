@@ -15,7 +15,7 @@ namespace df2x::components
 #ifndef _DEBUG
 		utils::memory::set_string(0x00A6E4C0, DF2X_FULL_VERSION);
 #else
-		utils::memory::set_string(0x00A6E4C0, fmt::format("{}-{}", DF2X_FULL_VERSION, DF2X_GIT_REVISION).c_str());
+		utils::memory::set_string(0x00A6E4C0, DF2X_GIT_REVISION);
 #endif
 
 		// Allow the use of the alternate startup.htm (without this you cannot connect through NovaHQ)
