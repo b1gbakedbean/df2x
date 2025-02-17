@@ -20,10 +20,15 @@ namespace game
 		extern GameLoop** g_currentLoop;
 		extern void* g_unknown01;
 		extern void* g_smallFont;
+		extern NetMessageSpec* g_messageSpecs;
+		extern uint32_t* g_ticks;
 	}
 
 	// Everything below here is our custom functions that are bascially wrappers around the internal functions/variables
 
 	GameLoop* get_current_loop();
 	void draw_text(int x, int y, char* text, int color, DrawTextAlignmentType alignmentType);
+	void add_custom_message(uint8_t id, uint8_t flags = 0x0, uint16_t size = 0);
+	uint32_t get_ticks();
+
 }

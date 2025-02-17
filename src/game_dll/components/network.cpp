@@ -1,5 +1,6 @@
 #include "network.hpp"
 #include "utils/memory.hpp"
+#include "game/game.hpp"
 
 namespace df2x::components
 {
@@ -48,6 +49,75 @@ namespace df2x::components
 		}
 	}
 
+	void network::cli_handle_custom_messages(unsigned int messageId, uint8_t* data)
+	{
+		switch (messageId)
+		{
+			default:
+				SPDLOG_DEBUG("Unhandled message id: {}", messageId);
+		}
+	}
+
+	__declspec(naked) void network::cli_parse_incoming_message_hook()
+	{
+		__asm
+		{
+			pushad
+			push ebx // data
+			inc eax
+			push eax // messageId
+			call cli_handle_custom_messages
+			add esp, 0x8
+			popad
+
+			test cl, 0x1
+			jz label_244
+			push 0x0040B0CB
+			retn
+
+		label_244:
+			push 0x0040B0D0
+			retn
+		}
+	}
+
+	void network::svr_handle_custom_messages(unsigned int messageId, uint8_t* data)
+	{
+		switch (messageId)
+		{
+			default:
+				SPDLOG_DEBUG("Unhandled message id: {}", messageId);
+		}
+	}
+
+	__declspec(naked) void network::svr_parse_incoming_message_hook()
+	{
+		__asm
+		{
+			pushad
+			push ebx // data
+			inc eax
+			push eax // messageId
+			call svr_handle_custom_messages
+			add esp, 0x8
+			popad
+
+			test cl, 0x1
+			jz label_244
+			push 0x0045DA69
+			retn
+
+		label_244:
+			push 0x0045DA80
+			retn
+		}
+	}
+
+	void network::register_custom_messages()
+	{
+		game::add_custom_message(95, 0x0, 2);
+	}
+
 	void network::load()
 	{
 		// Allows us to intercept the hostnames that Novalogics "ResolveHostname" function is provided.
@@ -81,6 +151,12 @@ namespace df2x::components
 
 		// Allow for more frequent updates of entity (organics) positions to the client (server)
 		utils::memory::nop(0x0045FFA3, 2);
+
+		register_custom_messages();
+
+		utils::memory::jump(0x0040B0C6, cli_parse_incoming_message_hook);
+		utils::memory::jump(0x0045DA64, svr_parse_incoming_message_hook);
+
 	}
 
 	void network::unload()

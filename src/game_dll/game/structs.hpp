@@ -11,6 +11,13 @@ namespace game
 		DrawTextAlignmentType_Center = 0x2,
 	};
 
+	struct NetMessageSpec
+	{
+  		uint8_t id;
+  		uint8_t flags;
+  		int16_t size;
+	};
+
 	struct PffArchive
 	{
 		HFILE fileHandle;

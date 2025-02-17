@@ -14,6 +14,8 @@ namespace game
 		GameLoop** g_currentLoop = reinterpret_cast<GameLoop**>(0x006772F0);
 		void* g_unknown01 = reinterpret_cast<void*>(0x0067D420);
 		void* g_smallFont = reinterpret_cast<void*>(0x00A6E068);
+		NetMessageSpec* g_messageSpecs = reinterpret_cast<NetMessageSpec*>(0x004B06A8);
+		uint32_t* g_ticks = reinterpret_cast<uint32_t*>(0x0067D414);
 	}
 
 	// Everything below here is our custom functions that are mostly wrappers around the internal functions/variables
@@ -27,5 +29,17 @@ namespace game
 	{
 		internal::scale_coordinates(internal::g_unknown01, &x, &y);
 		internal::draw_scaled_text(internal::g_unknown01, x, y, 0, text, internal::g_smallFont, color, alignmentType);
+	}
+
+	void game::add_custom_message(uint8_t id, uint8_t flags, uint16_t size)
+	{
+		internal::g_messageSpecs[id].id = id;
+		internal::g_messageSpecs[id].flags = flags;
+		internal::g_messageSpecs[id].size = size;
+	}
+
+	uint32_t game::get_ticks()
+	{
+    	return *internal::g_ticks;
 	}
 }
