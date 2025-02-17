@@ -6,18 +6,15 @@ namespace df2x::components
 {
 	static void dispatcher_run_callbacks(DispatcherCallbackType type)
 	{
-		static int ticks = 0;
 		auto callbacks = dispatcher::get_callbacks();
 
 		for (const auto& callback : callbacks)
 		{
 			if (callback.type == type)
 			{
-				callback.function(ticks);
+				callback.function(game::get_ticks());
 			}
 		}
-
-		ticks++;
 	}
 
 	static void preloop_dispatch()
