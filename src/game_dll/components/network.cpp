@@ -1,6 +1,7 @@
 #include "network.hpp"
 #include "utils/memory.hpp"
 #include "game/game.hpp"
+#include "dispatcher.hpp"
 
 namespace df2x::components
 {
@@ -53,6 +54,16 @@ namespace df2x::components
 	{
 		switch (messageId)
 		{
+			case 91: // Subgoals update
+			{
+				uint32_t subGoalsWon = *reinterpret_cast<uint32_t*>(data);
+				uint32_t subGoalsLost = *reinterpret_cast<uint32_t*>(data + 4);
+
+				game::set_subgoals_won(subGoalsWon);
+				game::set_subgoals_lost(subGoalsLost);
+				break;
+			}
+
 			default:
 				SPDLOG_DEBUG("Unhandled message id: {}", messageId);
 		}
@@ -115,7 +126,7 @@ namespace df2x::components
 
 	void network::register_custom_messages()
 	{
-		game::add_custom_message(95, 0x0, 2);
+		game::add_custom_message(91, 0x0, 8); // Subgoals update
 	}
 
 	void network::load()
@@ -157,6 +168,28 @@ namespace df2x::components
 		utils::memory::jump(0x0040B0C6, cli_parse_incoming_message_hook);
 		utils::memory::jump(0x0045DA64, svr_parse_incoming_message_hook);
 
+		dispatcher::add_callback(DispatcherCallbackType_Update, [](int ticks)
+			{
+				// Make sure we're in the main game loop
+				if (strcmpi(game::get_current_loop()->name, "Game Loop"))
+				{
+					return;
+				}
+
+				// Make sure we're the host
+				if (!game::is_host())
+				{
+					return;
+				}
+
+				// Only broadcast the subgoals update every ~1 second
+				if (ticks % 62 == 0)
+				{
+					uint32_t data[2]{ game::get_subgoals_won(), game::get_subgoals_lost() };
+
+					game::svr_queue_broadcasted_message(91, &data, 8);
+				}
+			});
 	}
 
 	void network::unload()
