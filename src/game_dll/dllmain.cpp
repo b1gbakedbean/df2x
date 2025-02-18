@@ -42,7 +42,7 @@ namespace df2x
 #ifndef _DEBUG
         SPDLOG_INFO("Version: {}", DF2X_FULL_VERSION);
 #else
-        SPDLOG_INFO("Version: {}-{}", DF2X_FULL_VERSION, DF2X_GIT_REVISION);
+        SPDLOG_INFO("Version: {}", DF2X_GIT_REVISION);
 #endif
         component_loader::add_component<df2x::components::dispatcher>();
         component_loader::add_component<df2x::components::archive>();
