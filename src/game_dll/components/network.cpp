@@ -135,11 +135,14 @@ namespace df2x::components
 		// Useful for changing the old NovaWorld hostname ("novaworld.net") to the new one ("nw2.novaworld.net").
 		utils::memory::jump(0x004614D0, resolve_hostname_hook);
 
-		// Disable VON (server)
-		utils::memory::nop(0x00441EC2, 5);
-
-		// Disable VON (client)
-		utils::memory::nop(0x00442130, 5);
+		// Disable VON (server & client)
+		utils::memory::set<uint32_t>(0x004D935C, 0);
+		utils::memory::nop(0x00440A25, 5);
+		utils::memory::nop(0x00440464, 5);
+		utils::memory::nop(0x00440470, 5);
+		utils::memory::nop(0x00440477, 5);
+		utils::memory::nop(0x0044048A, 5);
+		utils::memory::nop(0x0044049B, 5);
 
 		// Allow dynamic port usage (client)
 		utils::memory::set<uint8_t>(0x0040869A, 1);
