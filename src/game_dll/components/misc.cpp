@@ -10,6 +10,13 @@ namespace df2x::components
 		utils::memory::nop(0x00424A01, 5);
 		utils::memory::nop(0x004249ED, 5);
 
+		// Prevent the game from minimizing when focus is lost
+		utils::memory::set<uint8_t>(0x00477F4D, 0xEB);
+		utils::memory::set<uint8_t>(0x00477F77, 0xEB);
+
+		// Keep the game rendering while it doesn't have focus
+		utils::memory::nop(0x0047A8F7, 2);
+
 		// Change the window title
 		utils::memory::set_string(0x00A6E3C0, "DF2x, ");
 #ifndef _DEBUG
