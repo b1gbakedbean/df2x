@@ -1,5 +1,5 @@
 #include "discordrpc.hpp"
-//#include "dispatcher.hpp"
+#include "dispatcher.hpp"
 
 namespace df2x::components
 {
@@ -16,13 +16,7 @@ namespace df2x::components
 
 	void discordrpc::discordrpc_ready_callback(const DiscordUser* user)
 	{
-		DiscordRichPresence presence{};
-
 		SPDLOG_DEBUG("User connected {}", user->username);
-
-		/*presence.state = "Test";
-
-		Discord_UpdatePresence(&presence);*/
 	}
 
 	void discordrpc::discordrpc_error_callback(int errorCode, const char* message)
@@ -37,15 +31,15 @@ namespace df2x::components
 		handlers.ready = discordrpc_ready_callback;
 		handlers.errored = discordrpc_error_callback;
 
-		//Discord_Initialize("1320979085513723976", &handlers, TRUE, nullptr);
+		Discord_Initialize("1320979085513723976", &handlers, TRUE, nullptr);
 
-		//dispatcher::add_callback(DispatcherCallbackType_Logic, [](int ticks)
-		//	{
-		//		// Should be called every ~1s
-		//		if (ticks % 62 == 0)
-		//		{
-		//			Discord_RunCallbacks();
-		//		}
-		//	});
+		dispatcher::add_callback(DispatcherCallbackType_Update, [](int ticks)
+			{
+				// Should be called every ~1s
+				if (ticks % 62 == 0)
+				{
+					Discord_RunCallbacks();
+				}
+			});
 	}
 }
